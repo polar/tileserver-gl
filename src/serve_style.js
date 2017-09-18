@@ -144,7 +144,7 @@ module.exports = function(options, repo, params, id, reportTiles, reportFont) {
     };
 
     var source = styleJSON_.sources[Object.keys(styleJSON_.sources)[0]];
-    if (source.url.indexOf(req.protocol + '://' + req.headers.host + '/') === 0) {
+    if (source.url) { //.indexOf(req.protocol + '://' + req.headers.host + '/') === 0) {
       //TODO: this is just a prototype, solve better
       return request(source.url, function(err, response, body) {
         if (body) {
