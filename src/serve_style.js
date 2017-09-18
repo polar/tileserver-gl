@@ -4,7 +4,8 @@ var path = require('path'),
     fs = require('fs');
 
 var clone = require('clone'),
-    express = require('express');
+    express = require('express'),
+    request = require('request');
 
 
 module.exports = function(options, repo, params, id, reportTiles, reportFont) {
@@ -95,6 +96,72 @@ module.exports = function(options, repo, params, id, reportTiles, reportFont) {
       styleJSON_.glyphs = fixUrl(styleJSON_.glyphs, false, true);
     }
     return res.send(styleJSON_);
+  });
+
+  app.get('/' + id + '/VectorTileServer/resources/styles/root.json', function(req, res, next) {
+    var fixUrl = function(url, opt_nokey, opt_nostyle) {
+      if (!url || (typeof url !== 'string') || url.indexOf('local://') !== 0) {
+        return url;
+      }
+      var queryParams = [];
+      if (!opt_nostyle && global.addStyleParam) {
+        queryParams.push('style=' + id);
+      }
+      if (!opt_nokey && req.query.key) {
+        queryParams.unshift('key=' + req.query.key);
+      }
+      var query = '';
+      if (queryParams.length) {
+        query = '?' + queryParams.join('&');
+      }
+      return url.replace(
+          'local://', req.protocol + '://' + req.headers.host + '/') + query;
+    };
+
+    var styleJSON_ = clone(styleJSON);
+    Object.keys(styleJSON_.sources).forEach(function(name) {
+      var source = styleJSON_.sources[name];
+      source.url = fixUrl(source.url);
+    });
+    styleJSON.layers.forEach(function(obj) {
+      obj['layout'] = obj['layout'] || {};
+    });
+    // mapbox-gl-js viewer cannot handle sprite urls with query
+    if (styleJSON_.sprite) {
+      styleJSON_.sprite = fixUrl(styleJSON_.sprite, true, true);
+    }
+    if (styleJSON_.glyphs) {
+      styleJSON_.glyphs = fixUrl(styleJSON_.glyphs, false, true);
+    }
+
+    var respond = function() {
+      if (req.query.callback) {
+        return res.set('Content-Type', 'application/javascript')
+          .send(req.query.callback + '(' + JSON.stringify(styleJSON_) + ');');
+      } else {
+        return res.send(styleJSON_);
+      }
+    };
+
+    var source = styleJSON_.sources[Object.keys(styleJSON_.sources)[0]];
+    if (source.url.indexOf(req.protocol + '://' + req.headers.host + '/') === 0) {
+      //TODO: this is just a prototype, solve better
+      return request(source.url, function(err, response, body) {
+        if (body) {
+          body = JSON.parse(body);
+          if (body) {
+            delete source.url;
+            var type = source.type;
+            Object.assign(source, body);
+            source.type = type;
+            return respond();
+          }
+        }
+        return respond();
+      });
+    } else {
+      return respond();
+    }
   });
 
   app.get('/' + id + '/sprite:scale(@[23]x)?\.:format([\\w]+)',
