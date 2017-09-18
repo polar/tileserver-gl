@@ -156,6 +156,7 @@ module.exports = function(options, repo, params, id, reportTiles, reportFont) {
             delete source.url;
             var type = source.type;
             Object.assign(source, body);
+            source.tiles[0] = source.tiles[0].replace('http', req.protocol).replace('127.0.0.1', req.headers.host);
             source.type = type;
             return respond();
           }
