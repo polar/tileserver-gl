@@ -123,9 +123,36 @@ module.exports = function(options, repo, params, id, reportTiles, reportFont) {
       var source = styleJSON_.sources[name];
       source.url = fixUrl(source.url);
     });
-    styleJSON.layers.forEach(function(obj) {
+    styleJSON_.layers.forEach(function(obj) {
       obj['layout'] = obj['layout'] || {};
     });
+
+    styleJSON_.layers.forEach(function(obj, i) {
+      if (obj['filter'] && obj['filter'][0] == 'all') {
+        obj['filter'] = obj['filter'].filter(function(rule) {
+          if (rule.constructor !== String) {
+            if (rule[0] == 'has' || rule[0] == '!has') {
+              return false;
+            }
+          }
+          return true;
+        });
+      }
+      /*
+      if (obj['type'] == 'symbol') {
+        var field = obj['layout']['text-field'];
+        if (field && field.length) {
+          if (obj['layout']['text-field'].indexOf('{name') >= 0) {
+            // simply replace the whole field to avoid duplicity
+            //obj['layout']['text-field'] = '{name}';
+            //field.replace('\n', ' ').replace(/{name:[a-zA-Z]+}/g, '{name}');
+          }
+        }
+      }
+      */
+    });
+    styleJSON_.layers = styleJSON_.layers.filter(function(a) {return !!a;});
+
     // mapbox-gl-js viewer cannot handle sprite urls with query
     if (styleJSON_.sprite) {
       styleJSON_.sprite = fixUrl(styleJSON_.sprite, true, true);
@@ -135,28 +162,31 @@ module.exports = function(options, repo, params, id, reportTiles, reportFont) {
     }
 
     var respond = function() {
+      /*
+      // not actually needed
       if (req.query.callback) {
         return res.set('Content-Type', 'application/javascript')
           .send(req.query.callback + '(' + JSON.stringify(styleJSON_) + ');');
       } else {
         return res.send(styleJSON_);
-      }
+      }*/
+      return res.send(styleJSON_);
     };
 
     var source = styleJSON_.sources[Object.keys(styleJSON_.sources)[0]];
     if (source.url.indexOf(req.protocol + '://' + req.headers.host + '/') === 0) {
-      //TODO: this is just a prototype, solve better
+      //TODO: this is just a quick-hacked prototype, solve better
       return request(
         source.url
             .replace(req.protocol, 'http')
-            .replace(req.headers.host, '127.0.0.1'), function(err, response, body) {
+            .replace(req.headers.host, '127.0.0.1:' + process.env.PORT), function(err, response, body) {
         if (body) {
           body = JSON.parse(body);
           if (body) {
             delete source.url;
             var type = source.type;
             Object.assign(source, body);
-            source.tiles[0] = source.tiles[0].replace('http', req.protocol).replace('127.0.0.1', req.headers.host);
+            source.tiles[0] = source.tiles[0].replace('http', req.protocol).replace('127.0.0.1:' + process.env.PORT, req.headers.host);
             source.type = type;
             return respond();
           }
