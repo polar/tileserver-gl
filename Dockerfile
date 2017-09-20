@@ -15,6 +15,7 @@ RUN apt-get -qq update \
     libprotobuf-dev \
     libxxf86vm-dev \
     xvfb \
+    x11-utils \
 && echo "deb https://deb.nodesource.com/node_6.x stretch main" >> /etc/apt/sources.list.d/nodejs.list \
 && echo "deb-src https://deb.nodesource.com/node_6.x stretch main" >> /etc/apt/sources.list.d/nodejs.list \
 && apt-get -qq update \
