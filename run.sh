@@ -18,7 +18,7 @@ LOG "Starting Xvfb on ${DISPLAY}"
 LOG "Waiting for display at ${DISPLAY}."
 
 # Wait to be able to connect to the port. This will exit if it cannot in 15 minutes.
-timeout ${timeout} bash -c "while  ! xdpyinfo >/dev/null 2>&1; do sleep 0.5; done"
+timeout ${timeout} bash -c "while  ! xdpyinfo; do sleep 0.5; done"
 if [ $? -eq 0 ]; then
     LOG "Display ${DISPLAY} is up."
     LOG "Starting tileserver"
