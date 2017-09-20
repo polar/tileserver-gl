@@ -12,7 +12,7 @@ while [ ${p} -lt 3000 ]
     fi
  done
 
-if "${port}" != ""; then
+if [ "${port}" != "" ]; then
     echo "The display port will be ${port}."
     start-stop-daemon --start --pidfile ~/xvfb.pid --make-pidfile --background \
         --exec /usr/bin/Xvfb -- :${port} -screen 0 1024x768x24 \
