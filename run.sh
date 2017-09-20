@@ -4,6 +4,8 @@ function LOG {
     echo $(date -R): $0: $*
 }
 
+timeout=30
+
 displayNumber=1
 screenNumber=0
 export DISPLAY=:${displayNumber}.${screenNumber}
