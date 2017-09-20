@@ -20,10 +20,14 @@ if [ "${port}" != "" ]; then
 
     # Wait to be able to connect to the port. This will exit if it cannot in 15 minutes.
     timeout 15 bash -c "while ! nc -z localhost ${port}; do sleep 0.5; done"
-    export DISPLAY=:${port}.0
+    if [ $? -eq 0 ]; then
+        export DISPLAY=:${port}.0
 
-    cd /data
-    node /usr/src/app/ -p 80 "$@"
+        cd /data
+        node /usr/src/app/ -p 80 "$@"
+    else
+      echo "Could not connect to display port ${port} in 15 seconds time."
+    fi
 else
     echo "Could not get a display port."
     exit 1
