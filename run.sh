@@ -12,8 +12,8 @@ while [ ${p} -lt 3000 ]
     fi
  done
 
-if ${port}; then
-    echo The display port will be ${port}
+if "${port}" != ""; then
+    echo "The display port will be ${port}."
     start-stop-daemon --start --pidfile ~/xvfb.pid --make-pidfile --background \
         --exec /usr/bin/Xvfb -- :${port} -screen 0 1024x768x24 \
         -ac +extension GLX +render -noreset
@@ -25,6 +25,6 @@ if ${port}; then
     cd /data
     node /usr/src/app/ -p 80 "$@"
 else
-    echo "Could get a display port ${port}."
+    echo "Could not get a display port."
     exit 1
 fi
