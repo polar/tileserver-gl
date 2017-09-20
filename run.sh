@@ -12,6 +12,8 @@ while [ ${p} -lt 3000 ]
     fi
  done
 
+let timeout=20
+
 if [ "${port}" != "" ]; then
     echo "The display port will be ${port}."
     start-stop-daemon --start --pidfile ~/xvfb.pid --make-pidfile --background \
@@ -19,14 +21,14 @@ if [ "${port}" != "" ]; then
         -ac +extension GLX +render -noreset
 
     # Wait to be able to connect to the port. This will exit if it cannot in 15 minutes.
-    timeout 15 bash -c "while ! nc -z localhost ${port}; do sleep 0.5; done"
+    timeout ${timeout} bash -c "while ! nc -z localhost ${port}; do sleep 0.5; done"
     if [ $? -eq 0 ]; then
         export DISPLAY=:${port}.0
 
         cd /data
         node /usr/src/app/ -p 80 "$@"
     else
-      echo "Could not connect to display port ${port} in 15 seconds time."
+      echo "Could not connect to display port ${port} in ${timeout} seconds time."
     fi
 else
     echo "Could not get a display port."
