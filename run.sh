@@ -11,7 +11,7 @@ while [ ${p} -lt 3000 ]
         break
     fi
  done
- echo The port is ${port}
+echo The port is ${port}
 
 if ${port}; then
     timeout 15 bash -c "until echo > /dev/tcp/localhost/${port}; do sleep 0.5; done"
