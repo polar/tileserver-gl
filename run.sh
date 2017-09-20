@@ -19,7 +19,7 @@ if [ "${port}" != "" ]; then
         -ac +extension GLX +render -noreset
 
     # Wait to be able to connect to the port. This will exit if it cannot in 15 minutes.
-    timeout 15 bash -c "until echo > /dev/tcp/localhost/${port}; do sleep 0.5; done"
+    timeout 15 bash -c "while ! nc -z localhost ${port}; do sleep 0.5; done"
     export DISPLAY=:${port}.0
 
     cd /data
