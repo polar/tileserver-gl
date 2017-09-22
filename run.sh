@@ -4,7 +4,7 @@ function LOG {
     echo $(date -R): $0: $*
 }
 
-timeout=30
+timeout=300
 
 displayNumber=1
 screenNumber=0
