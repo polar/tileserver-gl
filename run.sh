@@ -15,7 +15,7 @@ LOG "Starting Xvfb on ${DISPLAY}"
         --exec /usr/bin/Xvfb -- :${displayNumber} -screen ${screenNumber} 1024x768x24 \
         -ac +extension GLX +render -noreset
 
-LOG "Waiting for display at ${DISPLAY} for ${timeout} seconds time."
+LOG "Waiting to be able to connect to display at ${DISPLAY} for ${timeout} seconds time."
 
 # Wait to be able to connect to the port. This will exit if it cannot in 15 minutes.
 timeout ${timeout} bash -c "while  ! xdpyinfo; do sleep 0.5; done"
