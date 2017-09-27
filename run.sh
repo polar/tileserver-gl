@@ -4,7 +4,8 @@ function LOG {
     echo $(date -R): $0: $*
 }
 
-timeout=300
+# Two minutes should be enough.
+timeout=120
 
 displayNumber=1
 screenNumber=0
