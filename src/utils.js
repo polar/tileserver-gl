@@ -37,7 +37,7 @@ module.exports.getTileUrls = function (req, domains, path, format, aliases, opti
   var key = req.query.key;
   var queryParams = [];
   if (req.query[options.auth.keyName]) {
-    queryParams.push(options.auth.keyName + '=' + req.query);
+    queryParams.push(options.auth.keyName + '=' + req.query[options.auth.keyName]);
   }
   if (req.query.style) {
     queryParams.push('style=' + req.query.style);
