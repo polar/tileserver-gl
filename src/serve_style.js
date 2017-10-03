@@ -124,9 +124,9 @@ module.exports = function (options, repo, params, id, reportTiles, reportFont) {
 
         console.log("new parsed url:", parsedUrl);
 
-        console.log(url.format(parsedUrl));
+        console.log(nodeUrl.format(parsedUrl));
 
-        return url.format(parsedUrl);
+        return nodeUrl.format(parsedUrl);
       }
     };
 
