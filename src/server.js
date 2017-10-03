@@ -2,26 +2,26 @@
 'use strict';
 
 process.env.UV_THREADPOOL_SIZE =
-  Math.ceil(Math.max(4, require('os').cpus().length * 1.5));
+    Math.ceil(Math.max(4, require('os').cpus().length * 1.5));
 
 var fs = require('fs'),
-  path = require('path');
+    path = require('path');
 
 var base64url = require('base64url'),
-  clone = require('clone'),
-  cors = require('cors'),
-  enableShutdown = require('http-shutdown'),
-  express = require('express'),
-  handlebars = require('handlebars'),
-  mercator = new (require('@mapbox/sphericalmercator'))(),
-  morgan = require('morgan');
+    clone = require('clone'),
+    cors = require('cors'),
+    enableShutdown = require('http-shutdown'),
+    express = require('express'),
+    handlebars = require('handlebars'),
+    mercator = new (require('@mapbox/sphericalmercator'))(),
+    morgan = require('morgan');
 
 var packageJson = require('../package'),
-  serve_font = require('./serve_font'),
-  serve_rendered = null,
-  serve_style = require('./serve_style'),
-  serve_data = require('./serve_data'),
-  utils = require('./utils');
+    serve_font = require('./serve_font'),
+    serve_rendered = null,
+    serve_style = require('./serve_style'),
+    serve_data = require('./serve_data'),
+    utils = require('./utils');
 
 var isLight = packageJson.name.slice(-6) == '-light';
 if (!isLight) {
@@ -33,12 +33,12 @@ function start(opts) {
   console.log('Starting server');
 
   var app = express().disable('x-powered-by'),
-    serving = {
-      styles: {},
-      rendered: {},
-      data: {},
-      fonts: {}
-    };
+      serving = {
+        styles: {},
+        rendered: {},
+        data: {},
+        fonts: {}
+      };
 
   app.enable('trust proxy');
 
@@ -84,7 +84,7 @@ function start(opts) {
 
   var startupPromises = [];
 
-  var checkPath = function (type) {
+  var checkPath = function(type) {
     if (!fs.existsSync(paths[type])) {
       console.error('The specified path for "' + type + '" does not exist (' + paths[type] + ').');
       process.exit(1);
@@ -98,7 +98,7 @@ function start(opts) {
   if (options.dataDecorator) {
     try {
       options.dataDecoratorFunc = require(path.resolve(paths.root, options.dataDecorator));
-    } catch (e) { }
+    } catch (e) {}
   }
 
   var data = clone(config.data || {});
@@ -107,7 +107,7 @@ function start(opts) {
     app.use(cors());
   }
 
-  Object.keys(config.styles || {}).forEach(function (id) {
+  Object.keys(config.styles || {}).forEach(function(id) {
     var item = config.styles[id];
     if (!item.style || item.style.length == 0) {
       console.log('Missing "style" property for ' + id);
@@ -116,9 +116,9 @@ function start(opts) {
 
     if (item.serve_data !== false) {
       startupPromises.push(serve_style(options, serving.styles, item, id,
-        function (mbtiles, fromData) {
+        function(mbtiles, fromData) {
           var dataItemId;
-          Object.keys(data).forEach(function (id) {
+          Object.keys(data).forEach(function(id) {
             if (fromData) {
               if (id == mbtiles) {
                 dataItemId = id;
@@ -142,9 +142,9 @@ function start(opts) {
             };
             return id;
           }
-        }, function (font) {
+        }, function(font) {
           serving.fonts[font] = true;
-        }).then(function (sub) {
+        }).then(function(sub) {
           app.use('/styles/', sub);
         }));
     }
@@ -152,16 +152,16 @@ function start(opts) {
       if (serve_rendered) {
         startupPromises.push(
           serve_rendered(options, serving.rendered, item, id,
-            function (mbtiles) {
+            function(mbtiles) {
               var mbtilesFile;
-              Object.keys(data).forEach(function (id) {
+              Object.keys(data).forEach(function(id) {
                 if (id == mbtiles) {
                   mbtilesFile = data[id].mbtiles;
                 }
               });
               return mbtilesFile;
             }
-          ).then(function (sub) {
+          ).then(function(sub) {
             app.use('/styles/', sub);
           })
         );
@@ -172,12 +172,12 @@ function start(opts) {
   });
 
   startupPromises.push(
-    serve_font(options, serving.fonts).then(function (sub) {
+    serve_font(options, serving.fonts).then(function(sub) {
       app.use('/', sub);
     })
   );
 
-  Object.keys(data).forEach(function (id) {
+  Object.keys(data).forEach(function(id) {
     var item = data[id];
     if (!item.mbtiles || item.mbtiles.length == 0) {
       console.log('Missing "mbtiles" property for ' + id);
@@ -185,30 +185,30 @@ function start(opts) {
     }
 
     startupPromises.push(
-      serve_data(options, serving.data, item, id, serving.styles).then(function (sub) {
+      serve_data(options, serving.data, item, id, serving.styles).then(function(sub) {
         app.use('/data/', sub);
       })
     );
   });
 
-  app.get('/styles.json', function (req, res, next) {
+  app.get('/styles.json', function(req, res, next) {
     var result = [];
     var query = req.query.key ? ('?key=' + req.query.key) : '';
-    Object.keys(serving.styles).forEach(function (id) {
+    Object.keys(serving.styles).forEach(function(id) {
       var styleJSON = serving.styles[id];
       result.push({
         version: styleJSON.version,
         name: styleJSON.name,
         id: id,
         url: req.protocol + '://' + req.headers.host +
-        '/styles/' + id + '/style.json' + query
+             '/styles/' + id + '/style.json' + query
       });
     });
     res.send(result);
   });
 
-  var addTileJSONs = function (arr, req, type) {
-    Object.keys(serving[type]).forEach(function (id) {
+  var addTileJSONs = function(arr, req, type) {
+    Object.keys(serving[type]).forEach(function(id) {
       var info = clone(serving[type][id]);
       var path = '';
       if (type == 'rendered') {
@@ -224,13 +224,13 @@ function start(opts) {
     return arr;
   };
 
-  app.get('/rendered.json', function (req, res, next) {
+  app.get('/rendered.json', function(req, res, next) {
     res.send(addTileJSONs([], req, 'rendered'));
   });
-  app.get('/data.json', function (req, res, next) {
+  app.get('/data.json', function(req, res, next) {
     res.send(addTileJSONs([], req, 'data'));
   });
-  app.get('/index.json', function (req, res, next) {
+  app.get('/index.json', function(req, res, next) {
     res.send(addTileJSONs(addTileJSONs([], req, 'rendered'), req, 'data'));
   });
 
@@ -239,25 +239,25 @@ function start(opts) {
   app.use('/', express.static(path.join(__dirname, '../public/resources')));
 
   var templates = path.join(__dirname, '../public/templates');
-  var serveTemplate = function (urlPath, template, dataGetter) {
+  var serveTemplate = function(urlPath, template, dataGetter) {
     var templateFile = templates + '/' + template + '.tmpl';
     if (template == 'index') {
       if (options.frontPage === false) {
         return;
       } else if (options.frontPage &&
-        options.frontPage.constructor === String) {
+                 options.frontPage.constructor === String) {
         templateFile = path.resolve(paths.root, options.frontPage);
       }
     }
-    startupPromises.push(new Promise(function (resolve, reject) {
-      fs.readFile(templateFile, function (err, content) {
+    startupPromises.push(new Promise(function(resolve, reject) {
+      fs.readFile(templateFile, function(err, content) {
         if (err) {
           console.error('Template not found:', err);
           reject(err);
         }
         var compiled = handlebars.compile(content.toString());
 
-        app.use(urlPath, function (req, res, next) {
+        app.use(urlPath, function(req, res, next) {
           var data = {};
           if (dataGetter) {
             data = dataGetter(req);
@@ -268,7 +268,7 @@ function start(opts) {
           data['server_version'] = packageJson.name + ' v' + packageJson.version;
           data['is_light'] = isLight;
           data['key_query_part'] =
-            req.query.key ? 'key=' + req.query.key + '&amp;' : '';
+              req.query.key ? 'key=' + req.query.key + '&amp;' : '';
           data['key_query'] = req.query.key ? '?key=' + req.query.key : '';
           return res.status(200).send(compiled(data));
         });
@@ -277,9 +277,9 @@ function start(opts) {
     }));
   };
 
-  serveTemplate('/$', 'index', function (req) {
+  serveTemplate('/$', 'index', function(req) {
     var styles = clone(config.styles || {});
-    Object.keys(styles).forEach(function (id) {
+    Object.keys(styles).forEach(function(id) {
       var style = styles[id];
       style.name = (serving.styles[id] || serving.rendered[id] || {}).name;
       style.serving_data = serving.styles[id];
@@ -288,13 +288,13 @@ function start(opts) {
         var center = style.serving_rendered.center;
         if (center) {
           style.viewer_hash = '#' + center[2] + '/' +
-            center[1].toFixed(5) + '/' +
-            center[0].toFixed(5);
+                              center[1].toFixed(5) + '/' +
+                              center[0].toFixed(5);
 
           var centerPx = mercator.px([center[0], center[1]], center[2]);
           style.thumbnail = center[2] + '/' +
-            Math.floor(centerPx[0] / 256) + '/' +
-            Math.floor(centerPx[1] / 256) + '.png';
+              Math.floor(centerPx[0] / 256) + '/' +
+              Math.floor(centerPx[1] / 256) + '.png';
         }
 
         var query = req.query.key ? ('?key=' + req.query.key) : '';
@@ -303,27 +303,27 @@ function start(opts) {
             '/styles/' + id + '.json' + query) + '/wmts';
 
         var tiles = utils.getTileUrls(
-          req, style.serving_rendered.tiles,
-          'styles/' + id, style.serving_rendered.format, null, options);
+            req, style.serving_rendered.tiles,
+            'styles/' + id, style.serving_rendered.format, null, options);
         style.xyz_link = tiles[0];
       }
     });
     var data = clone(serving.data || {});
-    Object.keys(data).forEach(function (id) {
+    Object.keys(data).forEach(function(id) {
       var data_ = data[id];
       var center = data_.center;
       if (center) {
         data_.viewer_hash = '#' + center[2] + '/' +
-          center[1].toFixed(5) + '/' +
-          center[0].toFixed(5);
+                            center[1].toFixed(5) + '/' +
+                            center[0].toFixed(5);
       }
       data_.is_vector = data_.format == 'pbf';
       if (!data_.is_vector) {
         if (center) {
           var centerPx = mercator.px([center[0], center[1]], center[2]);
           data_.thumbnail = center[2] + '/' +
-            Math.floor(centerPx[0] / 256) + '/' +
-            Math.floor(centerPx[1] / 256) + '.' + data_.format;
+              Math.floor(centerPx[0] / 256) + '/' +
+              Math.floor(centerPx[1] / 256) + '.' + data_.format;
         }
 
         var query = req.query.key ? ('?key=' + req.query.key) : '';
@@ -357,7 +357,7 @@ function start(opts) {
     };
   });
 
-  serveTemplate('/styles/:id/$', 'viewer', function (req) {
+  serveTemplate('/styles/:id/$', 'viewer', function(req) {
     var id = req.params.id;
     var style = clone((config.styles || {})[id]);
     if (!style) {
@@ -376,7 +376,7 @@ function start(opts) {
   });
   */
 
-  serveTemplate('/data/:id/$', 'data', function (req) {
+  serveTemplate('/data/:id/$', 'data', function(req) {
     var id = req.params.id;
     var data = clone(serving.data[id]);
     if (!data) {
@@ -388,11 +388,11 @@ function start(opts) {
   });
 
   var startupComplete = false;
-  var startupPromise = Promise.all(startupPromises).then(function () {
+  var startupPromise = Promise.all(startupPromises).then(function() {
     console.log('Startup complete');
     startupComplete = true;
   });
-  app.get('/health', function (req, res, next) {
+  app.get('/health', function(req, res, next) {
     if (startupComplete) {
       return res.status(200).send('OK');
     } else {
@@ -400,7 +400,7 @@ function start(opts) {
     }
   });
 
-  var server = app.listen(process.env.PORT || opts.port, process.env.BIND || opts.bind, function () {
+  var server = app.listen(process.env.PORT || opts.port, process.env.BIND || opts.bind, function() {
     var address = this.address().address;
     if (address.indexOf('::') === 0) {
       address = '[' + address + ']'; // literal IPv6 address
@@ -418,17 +418,17 @@ function start(opts) {
   };
 }
 
-module.exports = function (opts) {
+module.exports = function(opts) {
   var running = start(opts);
 
-  process.on('SIGINT', function () {
+  process.on('SIGINT', function() {
     process.exit();
   });
 
-  process.on('SIGHUP', function () {
+  process.on('SIGHUP', function() {
     console.log('Stopping server and reloading config');
 
-    running.server.shutdown(function () {
+    running.server.shutdown(function() {
       for (var key in require.cache) {
         delete require.cache[key];
       }
