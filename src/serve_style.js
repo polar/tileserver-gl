@@ -75,7 +75,7 @@ module.exports = function (options, repo, params, id, reportTiles, reportFont) {
         continue;
       }
 
-      if (url.indexOf(keyDomain) === 0) {
+      if (url.includes(keyDomain) === 0) {
         return true;
       }
     }
