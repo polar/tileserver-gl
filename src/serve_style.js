@@ -53,9 +53,9 @@ module.exports = function(options, repo, params, id, reportTiles, reportFont) {
   if (styleJSON.sprite && !httpTester.test(styleJSON.sprite)) {
     spritePath = path.join(options.paths.sprites,
         styleJSON.sprite
-          .replace('{style}', path.basename(styleFile, '.json'))
-          .replace('{styleJsonFolder}', path.relative(options.paths.sprites, path.dirname(styleFile)))
-          );
+            .replace('{style}', path.basename(styleFile, '.json'))
+            .replace('{styleJsonFolder}', path.relative(options.paths.sprites, path.dirname(styleFile)))
+            );
     styleJSON.sprite = 'local://styles/' + id + '/sprite';
   }
   if (styleJSON.glyphs && !httpTester.test(styleJSON.glyphs)) {
@@ -131,7 +131,7 @@ module.exports = function(options, repo, params, id, reportTiles, reportFont) {
   });
 
   app.get('/' + id + '/sprite:scale(@[23]x)?\.:format([\\w]+)',
-    function (req, res, next) {
+    function(req, res, next) {
       if (!spritePath) {
         return res.status(404).send('File not found');
       }
