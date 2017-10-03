@@ -70,6 +70,7 @@ function start(opts) {
   options.auth = options.auth || {};
   options.auth.keyName = options.auth.keyName || 'key';
   options.auth.keyDomains = options.auth.keyDomains || [];
+  options.auth.forceSpriteKey = options.auth.forceSpriteKey || false;
 
   console.log("options:", options);
 

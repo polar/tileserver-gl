@@ -121,7 +121,8 @@ module.exports = function (options, repo, params, id, reportTiles, reportFont) {
     });
     // mapbox-gl-js viewer cannot handle sprite urls with query
     if (styleJSON_.sprite) {
-      styleJSON_.sprite = fixUrl(styleJSON_.sprite, true, true);
+      var forceKeyParameter = options.auth.forceSpriteKey === true;
+      styleJSON_.sprite = fixUrl(styleJSON_.sprite, !forceKeyParameter, true);
     }
     if (styleJSON_.glyphs) {
       styleJSON_.glyphs = fixUrl(styleJSON_.glyphs, false, true);
