@@ -64,7 +64,7 @@ module.exports = function(options, repo, params, id, reportTiles, reportFont) {
 
   repo[id] = styleJSON;
 
-  var isWhitelistedUrl = function (url) {
+  var isWhitelistedUrl = function(url) {
     if (!options.auth || !Array.isArray(options.auth.keyDomains) || options.auth.keyDomains.length === 0) {
       return false;
     }
