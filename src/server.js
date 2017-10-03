@@ -72,8 +72,6 @@ function start(opts) {
   options.auth.keyDomains = options.auth.keyDomains || [];
   options.auth.forceSpriteKey = options.auth.forceSpriteKey || false;
 
-  console.log("options:", options);
-
   var paths = options.paths || {};
   options.paths = paths;
   paths.root = path.resolve(
