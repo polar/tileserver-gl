@@ -172,7 +172,7 @@ module.exports = function(options, repo, params, id, styles) {
     info.tiles = utils.getTileUrls(req, info.tiles,
                                    'data/' + id, info.format, {
                                      'pbf': options.pbfAlias
-                                   });
+                                   }, options);
     return res.send(info);
   });
 

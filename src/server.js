@@ -219,7 +219,7 @@ function start(opts) {
       }
       info.tiles = utils.getTileUrls(req, info.tiles, path, info.format, {
         'pbf': options.pbfAlias
-      });
+      }, options);
       arr.push(info);
     });
     return arr;
@@ -305,7 +305,7 @@ function start(opts) {
 
         var tiles = utils.getTileUrls(
           req, style.serving_rendered.tiles,
-          'styles/' + id, style.serving_rendered.format);
+          'styles/' + id, style.serving_rendered.format, null, options);
         style.xyz_link = tiles[0];
       }
     });
@@ -335,7 +335,7 @@ function start(opts) {
         var tiles = utils.getTileUrls(
           req, data_.tiles, 'data/' + id, data_.format, {
             'pbf': options.pbfAlias
-          });
+          }, options);
         data_.xyz_link = tiles[0];
       }
       if (data_.filesize) {

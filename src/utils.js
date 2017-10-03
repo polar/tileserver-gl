@@ -1,12 +1,12 @@
 'use strict';
 
 var path = require('path'),
-    fs = require('fs');
+  fs = require('fs');
 
 var clone = require('clone'),
-    glyphCompose = require('glyph-pbf-composite');
+  glyphCompose = require('glyph-pbf-composite');
 
-module.exports.getTileUrls = function(req, domains, path, format, aliases) {
+module.exports.getTileUrls = function (req, domains, path, format, aliases, options) {
 
   if (domains) {
     if (domains.constructor === String && domains.length > 0) {
@@ -15,9 +15,9 @@ module.exports.getTileUrls = function(req, domains, path, format, aliases) {
     var host = req.headers.host;
     var hostParts = host.split('.');
     var relativeSubdomainsUsable = hostParts.length > 1 &&
-        !/^([0-9]{1,3}\.){3}[0-9]{1,3}(\:[0-9]+)?$/.test(host);
+      !/^([0-9]{1,3}\.){3}[0-9]{1,3}(\:[0-9]+)?$/.test(host);
     var newDomains = [];
-    domains.forEach(function(domain) {
+    domains.forEach(function (domain) {
       if (domain.indexOf('*') !== -1) {
         if (relativeSubdomainsUsable) {
           var newParts = hostParts.slice(1);
@@ -36,8 +36,8 @@ module.exports.getTileUrls = function(req, domains, path, format, aliases) {
 
   var key = req.query.key;
   var queryParams = [];
-  if (req.query.key) {
-    queryParams.push('key=' + req.query.key);
+  if (req.query[options.auth.keyName]) {
+    queryParams.push(options.auth.keyName + '=' + req.query);
   }
   if (req.query.style) {
     queryParams.push('style=' + req.query.style);
@@ -49,15 +49,15 @@ module.exports.getTileUrls = function(req, domains, path, format, aliases) {
   }
 
   var uris = [];
-  domains.forEach(function(domain) {
+  domains.forEach(function (domain) {
     uris.push(req.protocol + '://' + domain + '/' + path +
-              '/{z}/{x}/{y}.' + format + query);
+      '/{z}/{x}/{y}.' + format + query);
   });
 
   return uris;
 };
 
-module.exports.fixTileJSONCenter = function(tileJSON) {
+module.exports.fixTileJSONCenter = function (tileJSON) {
   if (tileJSON.bounds && !tileJSON.center) {
     var fitWidth = 1024;
     var tiles = fitWidth / 256;
@@ -72,15 +72,15 @@ module.exports.fixTileJSONCenter = function(tileJSON) {
   }
 };
 
-var getFontPbf = function(allowedFonts, fontPath, name, range, fallbacks) {
-  return new Promise(function(resolve, reject) {
+var getFontPbf = function (allowedFonts, fontPath, name, range, fallbacks) {
+  return new Promise(function (resolve, reject) {
     if (!allowedFonts || (allowedFonts[name] && fallbacks)) {
       var filename = path.join(fontPath, name, range + '.pbf');
       if (!fallbacks) {
         fallbacks = clone(allowedFonts || {});
       }
       delete fallbacks[name];
-      fs.readFile(filename, function(err, data) {
+      fs.readFile(filename, function (err, data) {
         if (err) {
           console.error('ERROR: Font not found:', name);
           if (fallbacks && Object.keys(fallbacks).length) {
@@ -101,17 +101,17 @@ var getFontPbf = function(allowedFonts, fontPath, name, range, fallbacks) {
   });
 };
 
-module.exports.getFontsPbf = function(allowedFonts, fontPath, names, range, fallbacks) {
+module.exports.getFontsPbf = function (allowedFonts, fontPath, names, range, fallbacks) {
   var fonts = names.split(',');
   var queue = [];
-  fonts.forEach(function(font) {
+  fonts.forEach(function (font) {
     queue.push(
       getFontPbf(allowedFonts, fontPath, font, range, clone(allowedFonts || fallbacks))
     );
   });
 
-  return new Promise(function(resolve, reject) {
-    Promise.all(queue).then(function(values) {
+  return new Promise(function (resolve, reject) {
+    Promise.all(queue).then(function (values) {
       return resolve(glyphCompose.combine(values));
     }, reject);
   });
