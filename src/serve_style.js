@@ -107,10 +107,10 @@ module.exports = function (options, repo, params, id, reportTiles, reportFont) {
           'local://', req.protocol + '://' + req.headers.host + '/') + query;
       } else { // whitelisted url. might have existing parameters
         var parsedUrl = nodeUrl.parse(url);
-        var parsedQS = querystring.parse(url.query);
+        var parsedQS = querystring.parse(parsedUrl.query);
         var newParams = Object.assign(parsedQS, queryParams);
-        parsedUrl.search = querystring.unescape(querystring.stringify(parsedQS));
-        return nodeUrl.format(parsedUrl);
+        parsedUrl.search = querystring.stringify(parsedQS);
+        return querystring.unescape(nodeUrl.format(parsedUrl));
       }
     };
 
