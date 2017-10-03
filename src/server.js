@@ -71,6 +71,8 @@ function start(opts) {
   options.auth.keyName = options.auth.keyName || 'key';
   options.auth.keyDomains = options.auth.keyDomains || [];
 
+  console.log("options:", options);
+
   var paths = options.paths || {};
   options.paths = paths;
   paths.root = path.resolve(

@@ -85,6 +85,8 @@ module.exports = function (options, repo, params, id, reportTiles, reportFont) {
 
   app.get('/' + id + '/style.json', function (req, res, next) {
     var fixUrl = function (url, opt_nokey, opt_nostyle) {
+      console.log("URL:", url);
+      console.log("current options:", options);
       if (!url || (typeof url !== 'string') || (url.indexOf('local://') !== 0 && !isWhitelistedUrl(url))) {
         return url;
       }
@@ -97,18 +99,33 @@ module.exports = function (options, repo, params, id, reportTiles, reportFont) {
         queryParams[options.auth.keyName] = req.query[options.auth.keyName];
       }
 
+      console.log("params:", queryParams);
       if (url.indexOf('local://') === 0) {
         var query = querystring.stringify(queryParams);
         if (query.length) {
           query = '?' + query;
         }
+
+        console.log(url.replace(
+          'local://', req.protocol + '://' + req.headers.host + '/') + query);
+
         return url.replace(
           'local://', req.protocol + '://' + req.headers.host + '/') + query;
       } else { // whitelisted url. might have existing parameters
         var parsedUrl = nodeUrl.parse(url);
+        console.log("parsed url:", parsedUrl);
         var parsedQS = querystring.parse(url.query);
+
+        console.log("parsedQS:", parsedQS);
         var newParams = Object.assign(parsedQS, queryParams);
+
+        console.log("newParams:", newParams);
         parsedUrl.search = querystring.stringify(parsedQS);
+
+        console.log("new parsed url:", parsedUrl);
+
+        console.log(url.format(parsedUrl));
+
         return url.format(parsedUrl);
       }
     };
