@@ -65,9 +65,9 @@ module.exports = function (options, repo, params, id, reportTiles, reportFont) {
   if (styleJSON.sprite && !httpTester.test(styleJSON.sprite)) {
     spritePath = normalizeSpritePath(styleJSON.sprite);
     styleJSON.sprite = 'local://styles/' + id + '/sprite';
-  // if there are still sprites for this style, serve them according to the config setting
-  } else if (item.serveSprites && typeof item.serveSprites === 'object') {
-    spritePath = normalizeSpritePath(item.serveSprites.file);
+    // if there are still sprites for this style, serve them according to the config setting
+  } else if (params.serveSprites && typeof params.serveSprites === 'object') {
+    spritePath = normalizeSpritePath(params.serveSprites.file);
   }
 
   if (styleJSON.glyphs && !httpTester.test(styleJSON.glyphs)) {
