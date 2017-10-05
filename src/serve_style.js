@@ -47,17 +47,29 @@ module.exports = function (options, repo, params, id, reportTiles, reportFont) {
     }
   });
 
-  var spritePath;
-
-  var httpTester = /^(http(s)?:)?\/\//;
-  if (styleJSON.sprite && !httpTester.test(styleJSON.sprite)) {
-    spritePath = path.join(options.paths.sprites,
-      styleJSON.sprite
+  var normalizeSpritePath = function (intermediatePath) {
+    return path.join(options.paths.sprites,
+      intermediatePath
         .replace('{style}', path.basename(styleFile, '.json'))
         .replace('{styleJsonFolder}', path.relative(options.paths.sprites, path.dirname(styleFile)))
     );
-    styleJSON.sprite = 'local://styles/' + id + '/sprite';
   }
+
+  var spritePath;
+
+  var httpTester = /^(http(s)?:)?\/\//;
+
+  // if the current style JSON has a sprite path referencing some local sprites,
+  // replace placeholders, use that as our sprite path for this style, and
+  // then update the sprite path in the styleJSON to reference the sprite url.
+  if (styleJSON.sprite && !httpTester.test(styleJSON.sprite)) {
+    spritePath = normalizeSpritePath(styleJSON.sprite);
+    styleJSON.sprite = 'local://styles/' + id + '/sprite';
+  // if there are still sprites for this style, serve them according to the config setting
+  } else if (item.serveSprites && typeof item.serveSprites === 'object') {
+    spritePath = normalizeSpritePath(item.serveSprites.file);
+  }
+
   if (styleJSON.glyphs && !httpTester.test(styleJSON.glyphs)) {
     styleJSON.glyphs = 'local://fonts/{fontstack}/{range}.pbf';
   }
