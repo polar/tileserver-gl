@@ -1,27 +1,27 @@
 'use strict';
 
 var path = require('path'),
-    fs = require('fs'),
-    nodeUrl = require('url'),
-    querystring = require('querystring');
+  fs = require('fs'),
+  nodeUrl = require('url'),
+  querystring = require('querystring');
 
 var clone = require('clone'),
-    express = require('express');
+  express = require('express');
 
 
-module.exports = function(options, repo, params, id, reportTiles, reportFont) {
+module.exports = function (options, repo, params, id, reportTiles, reportFont) {
   var app = express().disable('x-powered-by');
 
   var styleFile = path.resolve(options.paths.styles, params.style);
 
   var styleJSON = clone(require(styleFile));
-  Object.keys(styleJSON.sources).forEach(function(name) {
+  Object.keys(styleJSON.sources).forEach(function (name) {
     var source = styleJSON.sources[name];
     var url = source.url;
     if (url && url.lastIndexOf('mbtiles:', 0) === 0) {
       var mbtilesFile = url.substring('mbtiles://'.length);
       var fromData = mbtilesFile[0] == '{' &&
-                     mbtilesFile[mbtilesFile.length - 1] == '}';
+        mbtilesFile[mbtilesFile.length - 1] == '}';
 
       if (fromData) {
         mbtilesFile = mbtilesFile.substr(1, mbtilesFile.length - 2);
@@ -35,7 +35,7 @@ module.exports = function(options, repo, params, id, reportTiles, reportFont) {
     }
   });
 
-  styleJSON.layers.forEach(function(obj) {
+  styleJSON.layers.forEach(function (obj) {
     if (obj['type'] == 'symbol') {
       var fonts = (obj['layout'] || {})['text-font'];
       if (fonts && fonts.length) {
@@ -52,10 +52,10 @@ module.exports = function(options, repo, params, id, reportTiles, reportFont) {
   var httpTester = /^(http(s)?:)?\/\//;
   if (styleJSON.sprite && !httpTester.test(styleJSON.sprite)) {
     spritePath = path.join(options.paths.sprites,
-        styleJSON.sprite
-            .replace('{style}', path.basename(styleFile, '.json'))
-            .replace('{styleJsonFolder}', path.relative(options.paths.sprites, path.dirname(styleFile)))
-            );
+      styleJSON.sprite
+        .replace('{style}', path.basename(styleFile, '.json'))
+        .replace('{styleJsonFolder}', path.relative(options.paths.sprites, path.dirname(styleFile)))
+    );
     styleJSON.sprite = 'local://styles/' + id + '/sprite';
   }
   if (styleJSON.glyphs && !httpTester.test(styleJSON.glyphs)) {
@@ -64,7 +64,7 @@ module.exports = function(options, repo, params, id, reportTiles, reportFont) {
 
   repo[id] = styleJSON;
 
-  var isWhitelistedUrl = function(url) {
+  var isWhitelistedUrl = function (url) {
     if (!options.auth || !Array.isArray(options.auth.keyDomains) || options.auth.keyDomains.length === 0) {
       return false;
     }
@@ -75,7 +75,7 @@ module.exports = function(options, repo, params, id, reportTiles, reportFont) {
         continue;
       }
 
-      if (url.includes(keyDomain) === 0) {
+      if (url.includes(keyDomain)) {
         return true;
       }
     }
@@ -115,7 +115,7 @@ module.exports = function(options, repo, params, id, reportTiles, reportFont) {
     };
 
     var styleJSON_ = clone(styleJSON);
-    Object.keys(styleJSON_.sources).forEach(function(name) {
+    Object.keys(styleJSON_.sources).forEach(function (name) {
       var source = styleJSON_.sources[name];
       source.url = fixUrl(source.url);
     });
@@ -131,7 +131,7 @@ module.exports = function(options, repo, params, id, reportTiles, reportFont) {
   });
 
   app.get('/' + id + '/sprite:scale(@[23]x)?\.:format([\\w]+)',
-    function(req, res, next) {
+    function (req, res, next) {
       if (!spritePath) {
         return res.status(404).send('File not found');
       }
