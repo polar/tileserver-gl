@@ -401,6 +401,7 @@ module.exports = function(options, repo, params, id, dataResolver) {
       renderer.render(params, function(err, data) {
         pool.release(renderer);
         if (err) {
+          console.error("Error from Renderer:");
           console.error(err);
           return;
         }
