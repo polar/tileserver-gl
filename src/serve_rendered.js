@@ -393,7 +393,8 @@ module.exports = function(options, repo, params, id, dataResolver) {
         bearing: bearing,
         pitch: pitch,
         width: width,
-        height: height
+        height: height,
+        debug: { parseStatus: true, tileBorders: true}
       };
       if (z == 0) {
         params.width *= 2;
