@@ -402,6 +402,9 @@ module.exports = function(options, repo, params, id, dataResolver) {
         pool.release(renderer);
         if (err) {
           console.error("Error from Renderer:");
+          console.error("Renderer.render");
+          console.error(renderer);
+          console.error(JSON.stringify(params, null, 2));
           console.error(err);
           return;
         }
