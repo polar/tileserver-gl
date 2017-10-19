@@ -139,7 +139,6 @@ module.exports = function(options, repo, params, id, dataResolver) {
   var createPool = function(ratio, min, max) {
     var createRenderer = function(ratio, createCallback) {
       var renderer = new mbgl.Map({
-        debug: { parseStatus: true, tileBorders: true},
         ratio: ratio,
         request: function(req, callback) {
           var protocol = req.url.split(':')[0];
@@ -393,8 +392,7 @@ module.exports = function(options, repo, params, id, dataResolver) {
         bearing: bearing,
         pitch: pitch,
         width: width,
-        height: height,
-        debug: { parseStatus: true, tileBorders: true}
+        height: height
       };
       if (z == 0) {
         params.width *= 2;
