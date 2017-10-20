@@ -164,6 +164,7 @@ module.exports = function(options, repo, params, id, dataResolver) {
             var parts = req.url.split('/');
             var sourceId = parts[2];
             var source = map.sources[sourceId];
+            var sourceInfo = styleJSON.sources[sourceId];
             var z = parts[3] | 0,
                 x = parts[4] | 0,
                 y = parts[5].split('.')[0] | 0,
@@ -171,7 +172,7 @@ module.exports = function(options, repo, params, id, dataResolver) {
             source.getTile(z, x, y, function(err, data, headers) {
               if (err) {
                 //console.log('MBTiles error, serving empty', err);
-                createEmptyResponse(source.format, source.color, callback);
+                createEmptyResponse(sourceInfo.format, sourceInfo.color, callback);
                 return;
               }
 
@@ -344,18 +345,15 @@ module.exports = function(options, repo, params, id, dataResolver) {
   });
 
   var renderersReadyPromise = Promise.all(queue).then(function() {
-    // TODO: make pool sizes configurable
+    // standard and @2x tiles are much more usual -> default to larger pools
+    var minPoolSizes = options.minRendererPoolSizes || [8, 4, 2];
+    var maxPoolSizes = options.maxRendererPoolSizes || [16, 8, 4];
     for (var s = 1; s <= maxScaleFactor; s++) {
-      var minPoolSize = 2;
-
-      // standard and @2x tiles are much more usual -> create larger pools
-      if (s <= 2) {
-        minPoolSize *= 2;
-        if (s <= 1) {
-          minPoolSize *= 2;
-        }
-      }
-      map.renderers[s] = createPool(s, minPoolSize, 2 * minPoolSize);
+      var i = Math.min(minPoolSizes.length - 1, s - 1);
+      var j = Math.min(maxPoolSizes.length - 1, s - 1);
+      var minPoolSize = minPoolSizes[i];
+      var maxPoolSize = Math.max(minPoolSize, maxPoolSizes[j]);
+      map.renderers[s] = createPool(s, minPoolSize, maxPoolSize);
     }
   });
 
